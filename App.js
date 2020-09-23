@@ -6,25 +6,50 @@
  * @flow strict-local
  */
 
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   SafeAreaView,
-  StyleSheet,
   ScrollView,
-  View,
-  Text,
   StatusBar,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
-
 import {
-  Header,
-  LearnMoreLinks,
   Colors,
   DebugInstructions,
+  Header,
+  LearnMoreLinks,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
-const App: () => React$Node = () => {
+const parse = (data) => {
+  const input = new Uint8Array(data);
+  const dv = new DataView(input.buffer);
+
+  const duration = dv.getUint16(0, true);
+  const audioLength = dv.getUint16(2, true);
+  const audio = input.subarray(4, audioLength + 4);
+  const video = input.subarray(audioLength + 4);
+
+  return {
+    audio: audio,
+    video: video,
+    duration: duration,
+  };
+};
+
+const App = () => {
+  useEffect(() => {
+    console.log('moiunted');
+    const socketURL = 'wss://jmuxer-demo-server.herokuapp.com';
+    var ws = new WebSocket(socketURL);
+    ws.addEventListener('message', function (event) {
+      var data = parse(event.data);
+      console.log(data);
+      //to do and Video element and render data in it
+    });
+  }, []);
   return (
     <>
       <StatusBar barStyle="dark-content" />
